@@ -178,6 +178,7 @@ void hub_process()
 		}
 	}
 
+#if 0
 	if(_phost != NULL && _phost->valid)
 	{
 		HID_MOUSE_Info_TypeDef *minfo;
@@ -196,7 +197,7 @@ LOG("KEYB %d", kinfo->keys[0]);
 			}
 		}
 	}
-
+#endif
 }
 
 void USBH_UserProcess (USBH_HandleTypeDef *pHost, uint8_t vId)
