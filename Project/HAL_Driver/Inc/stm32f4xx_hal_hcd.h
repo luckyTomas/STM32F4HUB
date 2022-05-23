@@ -214,6 +214,7 @@ HAL_StatusTypeDef   HAL_HCD_Stop(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
+HAL_StatusTypeDef HAL_HCD_StopHC(HCD_HandleTypeDef *hhcd, uint8_t chnum); // MORI
 
 /* Peripheral State functions  ************************************************/
 /** @addtogroup HCD_Exported_Functions_Group4 Peripheral State functions

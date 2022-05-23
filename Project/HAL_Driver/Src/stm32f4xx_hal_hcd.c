@@ -647,7 +647,7 @@ HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
 { 
   __HAL_LOCK(hhcd); 
   __HAL_HCD_ENABLE(hhcd);
-  USB_DriveVbus(hhcd->Instance, 1);  
+  USB_DriveVbus(hhcd->Instance, 1);
   __HAL_UNLOCK(hhcd); 
   return HAL_OK;
 }
@@ -663,6 +663,14 @@ HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
   __HAL_LOCK(hhcd); 
   USB_StopHost(hhcd->Instance);
   __HAL_UNLOCK(hhcd); 
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef HAL_HCD_StopHC(HCD_HandleTypeDef *hhcd, uint8_t chnum)
+{
+  __HAL_LOCK(hhcd);
+  USB_StopHostChannel(hhcd->Instance, chnum);
+  __HAL_UNLOCK(hhcd);
   return HAL_OK;
 }
 
@@ -828,7 +836,17 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     hhcd->hc[chnum].state = HC_DATATGLERR;
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_DTERR);
   }    
-  
+
+  // MORI
+  if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_BBERR)
+  {
+	  __HAL_HCD_UNMASK_HALT_HC_INT(chnum);
+	  __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_BBERR);
+//LOG1("B");
+//LOG1("<%d>", chnum);
+//	  LOG("BUBBLE>> chnum:%d, addr:%d, size:%d, epnum:%d", chnum, hhcd->hc[chnum].dev_addr, hhcd->hc[chnum].max_packet, hhcd->hc[chnum].ep_num);
+  }
+
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_FRMOR)
   {
     __HAL_HCD_UNMASK_HALT_HC_INT(chnum); 
@@ -1091,6 +1109,11 @@ static void HCD_RXQLVL_IRQHandler(HCD_HandleTypeDef *hhcd)
   uint32_t pktcnt; 
   uint32_t temp = 0;
   uint32_t tmpreg = 0;
+// MORI - nao existia
+//LOG(">> %d", (hhcd->Instance->GINTMSK & USB_OTG_GINTMSK_RXFLVLM) >> 4);
+  // Disable the Rx Status Queue Level interrupt
+//  hhcd->Instance->GINTMSK |= USB_OTG_GINTMSK_RXFLVLM;
+//LOG(">> %d", (hhcd->Instance->GINTMSK & USB_OTG_GINTMSK_RXFLVLM) >> 4);
   
   temp = hhcd->Instance->GRXSTSP;
   channelnum = temp &  USB_OTG_GRXSTSP_EPNUM;  
@@ -1129,6 +1152,10 @@ static void HCD_RXQLVL_IRQHandler(HCD_HandleTypeDef *hhcd)
   default:
     break;
   }
+// MORI - nao existia
+  // Enable the Rx Status Queue Level interrupt
+//  hhcd->Instance->GINTMSK &= ~USB_OTG_GINTMSK_RXFLVLM;
+//  LOG(">>> %d", (hhcd->Instance->GINTMSK & USB_OTG_GINTMSK_RXFLVLM) >> 4);
 }
 
 /**

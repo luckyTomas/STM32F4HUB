@@ -716,6 +716,9 @@ HAL_StatusTypeDef USB_EP0StartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeD
     
     }
     
+	/* EP enable, IN data in FIFO */
+	//USBx_INEP(ep->num)->DIEPCTL |= (USB_OTG_DIEPCTL_CNAK | USB_OTG_DIEPCTL_EPENA);// MORI
+	
     if (dma == 1)
     {
       USBx_INEP(ep->num)->DIEPDMA = (uint32_t)(ep->dma_addr);
@@ -730,7 +733,7 @@ HAL_StatusTypeDef USB_EP0StartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeD
     }
     
     /* EP enable, IN data in FIFO */
-    USBx_INEP(ep->num)->DIEPCTL |= (USB_OTG_DIEPCTL_CNAK | USB_OTG_DIEPCTL_EPENA);   
+	USBx_INEP(ep->num)->DIEPCTL |= (USB_OTG_DIEPCTL_CNAK | USB_OTG_DIEPCTL_EPENA);
   }
   else /* OUT endpoint */
   {
@@ -1492,6 +1495,25 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
     USBx_HC(hc->ch_num)->HCDMA = (uint32_t)hc->xfer_buff;
   }
   
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // MORI - Re-setup endpoint
+
+  USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_LSDEV;
+  USBx_HC(hc->ch_num)->HCCHAR |= (((hc->speed == USB_OTG_SPEED_LOW) << 17) & USB_OTG_HCCHAR_LSDEV);
+
+  USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_DAD;
+  USBx_HC(hc->ch_num)->HCCHAR |= ((hc->dev_addr << 22) & USB_OTG_HCCHAR_DAD);
+
+  USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_MPSIZ;
+  USBx_HC(hc->ch_num)->HCCHAR |= (hc->max_packet & USB_OTG_HCCHAR_MPSIZ);
+
+  //if(hc->speed == USB_OTG_SPEED_LOW && hc->ch_num > 1)//&& hc->max_packet > 8)
+//	  LOG("LS packet size: %d - addr: %d", hc->max_packet, hc->dev_addr);
+
+//  LOG(">>>%d", (USBx_HC(hc->ch_num)->HCCHAR & USB_OTG_HCCHAR_LSDEV) >> 17);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
   is_oddframe = (USBx_HOST->HFNUM & 0x01) ? 0 : 1;
   USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_ODDFRM;
   USBx_HC(hc->ch_num)->HCCHAR |= (is_oddframe << 29);
@@ -1695,6 +1717,49 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   USB_EnableGlobalInt(USBx);
   return HAL_OK;  
 }
+
+/**
+  * @brief  Stop Host Channel
+  * @param  USBx : Selected device
+  * @param  chnum : Channel number  
+  * @retval HAL state
+  */
+HAL_StatusTypeDef USB_StopHostChannel(USB_OTG_GlobalTypeDef *USBx, uint8_t chnum)
+{
+  uint32_t count = 0;
+  uint32_t value;
+  
+  USB_DisableGlobalInt(USBx);
+
+  /* Flush out any leftover queued requests. */
+  value = USBx_HC(chnum)->HCCHAR ;
+  value |=  USB_OTG_HCCHAR_CHDIS;
+  value &= ~USB_OTG_HCCHAR_CHENA;
+  value &= ~USB_OTG_HCCHAR_EPDIR;
+  USBx_HC(chnum)->HCCHAR = value;
+
+  /* Halt all channels to put them into a known state. */
+  value = USBx_HC(chnum)->HCCHAR;
+
+  value |= USB_OTG_HCCHAR_CHDIS;
+  value |= USB_OTG_HCCHAR_CHENA;
+  value &= ~USB_OTG_HCCHAR_EPDIR;
+
+  USBx_HC(chnum)->HCCHAR = value;
+  do
+  {
+    if (++count > 1000)
+    {
+      break;
+    }
+  }
+  while ((USBx_HC(chnum)->HCCHAR & USB_OTG_HCCHAR_CHENA) == USB_OTG_HCCHAR_CHENA);
+
+  USB_EnableGlobalInt(USBx);
+
+  return HAL_OK;
+}
+
 /**
   * @}
   */
