@@ -14,6 +14,11 @@
  extern "C" {
 #endif
 
+#define LOG_MODE_UART4  1    //mori-br
+#define LOG_MODE_SWO    2       // TOMAS MICKUS
+
+ #define LOG_MODE LOG_MODE_SWO
+
 uint8_t LOG_INIT(USART_TypeDef *usart, uint32_t baudrate);
 void LOG(const char *__msg, ...);
 void LOG1(const char *__msg, ...);

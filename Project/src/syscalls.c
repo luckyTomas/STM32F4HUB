@@ -11,7 +11,7 @@
 **
 **  Environment : System Workbench for MCU
 **
-**  Distribution: The file is distributed “as is,” without any warranty
+**  Distribution: The file is distributed ï¿½as is,ï¿½ without any warranty
 **                of any kind.
 **
 *****************************************************************************
@@ -100,13 +100,15 @@ int _read (int file, char *ptr, int len)
 return len;
 }
 
+#include "stm32f4_discovery.h"
 int _write(int file, char *ptr, int len)
 {
 	int DataIdx;
 
 	for (DataIdx = 0; DataIdx < len; DataIdx++)
 	{
-		__io_putchar(*ptr++);
+	    ITM_SendChar(*ptr++);
+		//__io_putchar(*ptr++);
 	}
 	return len;
 }

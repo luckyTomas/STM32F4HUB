@@ -37,14 +37,20 @@ void write_string(const char *data)
 
 void LOG(const char *__msg, ...)
 {
+
     char buffer[LOGGER_MAXLEN] = {0};
     va_list ap;
     va_start (ap, __msg);
     vsprintf (buffer, __msg, ap);
     va_end (ap);
 
+#if LOG_MODE == 2
+    printf(buffer);
+    printf("\n");
+#elif LOG_MODE == 1
     write_string(buffer);
     write_string("\r\n");
+#endif
 }
 
 void LOG1(const char *__msg, ...)
