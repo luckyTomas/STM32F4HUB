@@ -476,17 +476,16 @@ typedef struct _USBH_HandleTypeDef
 #endif  
   
 // MORI
-  __IO uint8_t valid;
-  __IO uint8_t busy;
+  __IO uint8_t valid;   //3: device connected, endpoint not configure, 1: endpoint configured (USBH_Process allowed)
+  __IO uint8_t busy; //1: enumeration pending, 0: enumeration done ( however interface might not be found! - useless device :( )
 
-//  __IO uint8_t transfering;
 
-  uint8_t hub;
-  uint8_t address;
+//  uint8_t hub;
+  uint8_t address;  // pending address (our choice), used in enumeration process. If process succeeds, device->address shows the same value
 
-  uint8_t prescaler;
-  uint8_t interfaces;
-  void*   USBH_ClassTypeDef_pData[USBH_MAX_NUM_INTERFACES];
+//  uint8_t prescaler;
+  uint8_t interfaces; // interface cnt
+  void*   USBH_ClassTypeDef_pData[USBH_MAX_NUM_INTERFACES]; // class buffer (hid, hub, cdc, etc. ) as classes don't use static buffers
 } USBH_HandleTypeDef;
 
 

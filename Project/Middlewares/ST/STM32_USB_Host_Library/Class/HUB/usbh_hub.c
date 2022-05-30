@@ -131,7 +131,7 @@ USBH_UsrLog ("device POLL %d, LEN %d", HUB_Handle->poll, HUB_Handle->length);
 	    	USBH_LL_SetToggle (phost, HUB_Handle->InPipe, 0);
 	    }
 
-	    phost->hub = 1;
+	    //phost->hub = 1;
 
 	    status = USBH_OK;
 	}
@@ -223,8 +223,6 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
      		break;
 
     	case HUB_GET_DATA:
-if(hUSBHost[1].busy)
-	break;
 
     	    USBH_InterruptReceiveData(phost, HUB_Handle->buffer, HUB_Handle->length, HUB_Handle->InPipe);
     	    HUB_Handle->state = HUB_POLL;
@@ -244,6 +242,8 @@ if(hUSBHost[1].busy)
     		        else
     		        	HUB_Handle->state = HUB_GET_DATA;
     	    	}
+    	    }else if(HUB_Change.val){
+    	        HUB_Handle->state = HUB_LOOP_PORT_CHANGED;
     	    }
     		else if(USBH_LL_GetURBState(phost , HUB_Handle->InPipe) == USBH_URB_STALL) /* IN Endpoint Stalled */
     		{
@@ -379,7 +379,7 @@ debug_port(HUB_Handle->buffer, HUB_ChangeInfo);
     		break;
 
     	case HUB_DEV_ATTACHED:
-USBH_UsrLog("HUB_DEV_ATTACHED %d, lowspeed? %d", HUB_CurPort, HUB_ChangeInfo->wPortStatus.PORT_LOW_SPEED);
+USBH_UsrLog("\r\nHUB_DEV_ATTACHED %d, lowspeed? %d", HUB_CurPort, HUB_ChangeInfo->wPortStatus.PORT_LOW_SPEED);
 
 			HUB_Handle->state = HUB_LOOP_PORT_WAIT;
 			attach(phost, HUB_CurPort, HUB_ChangeInfo->wPortStatus.PORT_LOW_SPEED);
@@ -603,7 +603,7 @@ USBH_UsrLog("attach %d", idx);
 
 	pphost->id 					= hUSBHost[0].id;
 	pphost->address 			= idx;
-	pphost->hub 				= 0;
+	//pphost->hub 				= 0;
 	pphost->pActiveClass 		= NULL;
 	pphost->ClassNumber 		= 0;
 	pphost->Pipes 				= phost->Pipes;
@@ -635,7 +635,7 @@ USBH_UsrLog("attach %d", idx);
 		pphost->USBH_ClassTypeDef_pData[i] = NULL;
 
 	pphost->interfaces = 0;
-	pphost->busy  = 0;
+	pphost->busy  = 1;
 	pphost->valid = 3;
 
 //USBH_UsrLog("HUB stuff ok");

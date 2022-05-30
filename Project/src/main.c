@@ -92,6 +92,8 @@ void swoInit (uint32_t portMask, uint32_t cpuCoreFreqHz, uint32_t baudrate)
         bItmAvailable = 1 ;
     }
 }
+
+
 int main(void)
 {
 	uint32_t i = 0;

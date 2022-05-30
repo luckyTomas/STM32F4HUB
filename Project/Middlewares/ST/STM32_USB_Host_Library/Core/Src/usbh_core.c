@@ -536,7 +536,8 @@ USBH_UsrLog ("DEVICE DISCONNECTED DURING CONNECTION DELAY");
     if(phost->ClassNumber == 0)
     {
       USBH_UsrLog ("No Class has been registered.");
-phost->gState  = HOST_ABORT_STATE;
+      phost->gState  = HOST_ABORT_STATE;
+      phost->busy = 0;
     }
     else
     {
@@ -578,6 +579,7 @@ phost->gState  = HOST_ABORT_STATE;
         phost->gState  = HOST_ABORT_STATE;
         USBH_UsrLog ("No registered class for this device.");
       }
+      phost->busy = 0;
     }
     
 #if (USBH_USE_OS == 1)
