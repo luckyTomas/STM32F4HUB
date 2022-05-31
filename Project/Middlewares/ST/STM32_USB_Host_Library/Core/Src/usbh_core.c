@@ -223,17 +223,6 @@ USBH_StatusTypeDef  USBH_RegisterClass(USBH_HandleTypeDef *phost, USBH_ClassType
   return status;
 }
 
-static int getInterfaceIdxFromNum(USBH_HandleTypeDef *phost, uint8_t num)
-{
-	int i = 0;
-	for(;i < phost->device.CfgDesc.bNumInterfaces; ++i)
-	{
-		if(phost->device.CfgDesc.Itf_Desc[i].bInterfaceNumber == num)
-			return i;
-	}
-
-	return -1;
-}
 /**
   * @brief  USBH_SelectInterface 
   *         Select current interface.
@@ -245,23 +234,18 @@ USBH_StatusTypeDef USBH_SelectInterface(USBH_HandleTypeDef *phost, uint8_t inter
 {
   USBH_StatusTypeDef   status = USBH_OK;
   
-USBH_UsrLog ("Switching to Interface (#%d)", interface);
-  if(phost->device.current_interface != interface)
+  if(interface < phost->device.CfgDesc.bNumInterfaces)
   {
-	  int val = getInterfaceIdxFromNum(phost, interface);
-	  if(val >= 0 && val < phost->device.CfgDesc.bNumInterfaces)
-      {
-		phost->device.current_interface = val; //interface;
-
-		//USBH_UsrLog ("Class    : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass );
-		//USBH_UsrLog ("SubClass : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceSubClass );
-		//USBH_UsrLog ("Protocol : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceProtocol );
-      }
-      else
-      {
+    phost->device.current_interface = interface;
+    USBH_UsrLog ("Switching to Interface (#%d)", interface);
+    USBH_UsrLog ("Class    : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass );
+    USBH_UsrLog ("SubClass : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceSubClass );
+    USBH_UsrLog ("Protocol : %xh", phost->device.CfgDesc.Itf_Desc[interface].bInterfaceProtocol );                 
+  }
+  else
+  {
     USBH_ErrLog ("Cannot Select This Interface.");
     status = USBH_FAIL; 
-	  }
   }
   return status;  
 }
@@ -305,7 +289,6 @@ uint8_t  USBH_FindInterface(USBH_HandleTypeDef *phost, uint8_t Class, uint8_t Su
     {
       return  if_ix;
     }
-//		USBH_UsrLog ("CLASS: 0x%02X, SUBCLASS: 0x%02X, PROTO: 0x%02X", pif->bInterfaceClass, pif->bInterfaceSubClass, pif->bInterfaceProtocol);
     if_ix++;
   }
   return 0xFF;

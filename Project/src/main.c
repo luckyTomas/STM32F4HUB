@@ -129,7 +129,6 @@ int main(void)
 	USBH_RegisterClass(&hUSBHost[0], USBH_HUB_CLASS);
 
 	USBH_Start(&hUSBHost[0]);
-
 	while(1)
 	{
 		if (i++ > 150000)

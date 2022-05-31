@@ -187,9 +187,9 @@ USBH_UsrLog("INTERFACES: %d",phost->device.CfgDesc.bNumInterfaces);
 			USBH_SelectInterface(phost, itfnum);
 			state = 2;
 
-USBH_UsrLog ("Class    : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceClass );
-USBH_UsrLog ("SubClass : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceSubClass );
-USBH_UsrLog ("Protocol : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceProtocol );
+//USBH_UsrLog ("Class    : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceClass );
+//USBH_UsrLog ("SubClass : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceSubClass );
+//USBH_UsrLog ("Protocol : %xh", phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceProtocol );
 
 			break;
 
@@ -528,8 +528,7 @@ USBH_StatusTypeDef USBH_HID_GetHIDReportDescriptor (USBH_HandleTypeDef *phost, u
   
   status = USBH_GetDescriptor(phost,
                               USB_REQ_RECIPIENT_INTERFACE | USB_REQ_TYPE_STANDARD,                                  
-                              USB_DESC_HID_REPORT, 
-                              interface,
+                              USB_DESC_HID_REPORT,
                               phost->device.Data,
                               length);
   
@@ -559,7 +558,6 @@ USBH_StatusTypeDef USBH_HID_GetHIDDescriptor (USBH_HandleTypeDef *phost, uint16_
   status = USBH_GetDescriptor( phost,
                               USB_REQ_RECIPIENT_INTERFACE | USB_REQ_TYPE_STANDARD,                                  
                               USB_DESC_HID,
-                              interface,
                               phost->device.Data,
                               length);
   return status;
