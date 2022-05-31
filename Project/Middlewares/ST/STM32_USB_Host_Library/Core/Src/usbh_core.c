@@ -166,7 +166,7 @@ static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
   /* Clear Pipes flags*/
   for ( ; i < USBH_MAX_PIPES_NBR; i++)
   {
-    phost->Pipes[i] = 0;
+      (*phost->Pipes)[i] = 0;
   }
   
   for(i = 0; i< USBH_MAX_DATA_BUFFER; i++)

@@ -93,7 +93,7 @@ void swoInit (uint32_t portMask, uint32_t cpuCoreFreqHz, uint32_t baudrate)
     }
 }
 
-
+uint32_t pipes[USBH_MAX_PIPES_NBR];
 int main(void)
 {
 	uint32_t i = 0;
@@ -122,7 +122,7 @@ int main(void)
 
 	hUSBHost[0].valid   = 1;
 	hUSBHost[0].address = USBH_DEVICE_ADDRESS;
-	hUSBHost[0].Pipes   = USBH_malloc(sizeof(uint32_t) * USBH_MAX_PIPES_NBR);
+	hUSBHost[0].Pipes   = &pipes;
 
 	USBH_Init(&hUSBHost[0], USBH_UserProcess, ID_USB_HOST_FS);
 	USBH_RegisterClass(&hUSBHost[0], USBH_HID_CLASS);

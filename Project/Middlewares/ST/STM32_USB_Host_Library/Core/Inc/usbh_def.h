@@ -464,7 +464,7 @@ typedef struct _USBH_HandleTypeDef
   USBH_ClassTypeDef*    pClass[USBH_MAX_NUM_SUPPORTED_CLASS];
   USBH_ClassTypeDef*    pActiveClass;
   uint32_t              ClassNumber;
-  uint32_t              *Pipes;//[15];
+  uint32_t              (*Pipes)[15];//[15];
   __IO uint32_t         Timer;
   uint8_t               id;  
   void*                 pData;                  
