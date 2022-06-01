@@ -33,7 +33,7 @@
 #include "usbh_hid.h"
 #include "usbh_hub.h"
 
-#include "log.h"
+#include "usb_log.h"
 #include "stdio.h"
 
 
@@ -146,6 +146,7 @@ int main(void)
 void hub_process()
 {
 	static uint8_t current_loop = -1;
+	static uint8_t prev_loop = -1;
 	static USBH_HandleTypeDef *_phost = 0;
 
 	if(_phost != NULL && _phost->valid == 1)
@@ -158,19 +159,18 @@ void hub_process()
 
 	while(1)
 	{
-		current_loop++;
 
-		if(current_loop > MAX_HUB_PORTS)
-			current_loop = 0;
+		current_loop = (current_loop + 1) % (MAX_HUB_PORTS + 1);
 
 		if(hUSBHost[current_loop].valid)
 		{
-			_phost = &hUSBHost[current_loop];
-			USBH_LL_SetupEP0(_phost);
-
+		    _phost = &hUSBHost[current_loop];
+		    if(prev_loop != current_loop){
+		        prev_loop = current_loop;
+                USBH_LL_SetupEP0(_phost);
+		    }
 			if(_phost->valid == 3)
 			{
-//LOG("PROCESSING ATTACH %d", _phost->address);
 				_phost->valid = 1;
 				_phost->busy  = 1;
 			}

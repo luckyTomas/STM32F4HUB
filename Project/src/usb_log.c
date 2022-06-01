@@ -5,7 +5,7 @@
  *      Author: mori
  */
 
-#include "log.h"
+#include "usb_log.h"
 
 #include <stdio.h>
 #include <string.h>

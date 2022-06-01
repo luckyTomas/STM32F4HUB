@@ -537,6 +537,7 @@ void USBH_Delay(uint32_t Delay)
   * @param  phost: Host handle
   * @retval Status
   */
+#if 0
 HAL_StatusTypeDef USBH_LL_SetupEP0(USBH_HandleTypeDef *phost)
 {
 	HCD_HandleTypeDef *phHCD =  &_hHCD[phost->id];
@@ -566,3 +567,24 @@ __HAL_UNLOCK(phHCD);
 
 	return HAL_OK;
 }
+#else
+HAL_StatusTypeDef USBH_LL_SetupEP0(USBH_HandleTypeDef *phost)
+{
+    HCD_HandleTypeDef *phHCD =  &_hHCD[phost->id];
+
+    phHCD->pData = phost;
+    phost->pData = phHCD;
+
+//    HAL_HCD_StopHC(phHCD, phost->Control.pipe_in);
+//    HAL_HCD_StopHC(phHCD, phost->Control.pipe_out);
+    USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80, phost->device.address, phost->device.speed,
+    USBH_EP_CONTROL, phost->Control.pipe_size);
+
+    /* Open Control pipes */
+    USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address, phost->device.speed,
+    USBH_EP_CONTROL, phost->Control.pipe_size);
+
+    return HAL_OK;
+}
+#endif
+
